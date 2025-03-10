@@ -2,6 +2,20 @@ import { Target, Cpu, Users, Award, Clock, ChevronRight, Zap, Globe, Sparkles, S
 
 
 function About() {
+  const teamMembers = [
+    {
+      name: "فهد الغامدي",
+      role: "المؤسس - مهندس برمجيات ومختبر برمجيات",
+      description: "مؤسس المشروع، مهندس برمجيات متخصص في تطوير واجهات المستخدم، وضمان الجودة والاختبار الآلي، يسعى لتقديم حلول تقنية مبتكرة.",
+      skills: ["React", "Vite", "اختبار البرمجيات", "تحليل الأنظمة"],
+    },
+    {
+      name: "عبدالعزيز العتيبي",
+      role: "الشريك المساعد - مطور ومختبر برمجيات",
+      description: "شريك مساعد في المشروع، يتمتع بخبرة في تطوير التطبيقات واختبار البرمجيات لضمان الأداء العالي والجودة.",
+      skills: ["JavaScript", "Node.js", "اختبار الأداء", "تصميم قواعد البيانات"],
+    },
+  ];
   return (
     <div className="min-h-screen flex flex-col">
 
@@ -149,39 +163,44 @@ function About() {
 
         {/* Team */}
         <section className="py-16 px-4 bg-gray-50">
-          <div className="container mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium mb-4">
-                <Users className="h-4 w-4" />
-                <span>فريقنا</span>
-              </div>
-              <h2 className="text-3xl font-bold mb-4 text-gray-800">القائمين على المشروع</h2>
-              <p className="text-gray-600 max-w-3xl mx-auto">
-                فريق متميز من الخبراء والمتخصصين في مجال التقنية وخدمات السيارات، يعملون معاً لتقديم أفضل تجربة لعملائنا.
-              </p>
-            </div>
+      <div className="container mx-auto">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium mb-4">
+            <Users className="h-4 w-4" />
+            <span>فريقنا</span>
+          </div>
+          <h2 className="text-3xl font-bold mb-4 text-gray-800">القائمين على المشروع</h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            فريق من المهندسين والمطورين المتخصصين، يجمعهم الشغف بالتقنية لضمان أفضل الحلول والابتكارات.
+          </p>
+        </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {[1, 2].map((person) => (
-                <div key={person} className="bg-white rounded-xl shadow-md overflow-hidden">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="sm:w-1/3 bg-gray-200 aspect-square"></div>
-                    <div className="sm:w-2/3 p-6">
-                      <h3 className="text-xl font-bold mb-1 text-gray-800">[اسم الشخص]</h3>
-                      <p className="text-blue-600 mb-4">[المنصب]</p>
-                      <p className="text-gray-600 mb-4">سيتم إضافة نبذة عن الشخص ودوره في المشروع وخبراته السابقة.</p>
-                      <div className="flex gap-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
-                        <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
-                        <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
-                      </div>
-                    </div>
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {teamMembers.map((member, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="flex flex-col sm:flex-row">
+                <div className="sm:w-1/3 bg-gray-200 aspect-square flex items-center justify-center text-gray-500">
+                  صورة
+                </div>
+                <div className="sm:w-2/3 p-6">
+                  <h3 className="text-xl font-bold mb-1 text-gray-800">{member.name}</h3>
+                  <p className="text-blue-600 mb-2">{member.role}</p>
+                  <p className="text-gray-600 mb-4">{member.description}</p>
+                  <div className="text-sm text-gray-700">
+                    <strong>المهارات:</strong> {member.skills.join(" • ")}
+                  </div>
+                  <div className="flex gap-3 mt-4">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
+                    <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
+                    <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </div>
+    </section>
 
         {/* Values */}
         <section className="py-16 px-4 bg-white">
