@@ -4,6 +4,22 @@ import Header from "./Components/Header";
 import About from "./About";
 import Services from "./Services";
 import Contact from "./Contact";
+
+{/* User Routes */}
+import BookingPage from "./User/BookingPage";
+import BookingsPage from "./User/BookingsPage";
+import LoginPage from "./User/LoginPage";
+import ProfilePage from "./User/ProfilePage";
+
+
+{/* Admin Routes */}
+
+{/* Laundry Routes */}
+import CarWashProfile from "./laundry/CarWashProfile";  
+import CarWashLogin  from "./laundry/CarWashLogin";
+import CarWashDashboard from "./laundry/CarWashDashboard";  
+
+
 function App() {
   return (
     <>
@@ -13,6 +29,27 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/Contact" element={<Contact />} />
         <Route path="/services" element={<Services />} />
+
+              {/* User Routes */}
+
+        <Route path="/user/login" element={<LoginPage />} />
+        <Route path="/user/profile" element={<ProfilePage />} />      
+        <Route path="/user/booking" element={<BookingPage />} />
+        <Route path="/user/bookings" element={<BookingsPage />} />
+
+
+
+              {/* Admin Routes */}
+
+
+
+
+
+              {/* Laundry Routes */}
+        <Route path="/laundry/login" element={<CarWashLogin />} />
+        <Route path="/laundry/dashboard" element={<CarWashDashboard />} />
+        <Route path="/laundry/profile" element={<CarWashProfile />} />
+
       </Routes>
     </>
   );
