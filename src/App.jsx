@@ -8,7 +8,7 @@ import Contact from "./Contact";
 {/* User Routes */}
 import BookingPage from "./User/BookingPage";
 import BookingsPage from "./User/BookingsPage";
-import LoginPage from "./User/LoginPage";
+import LoginPage from "./Auth/Login";
 import ProfilePage from "./User/ProfilePage";
 
 

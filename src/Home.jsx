@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Car, MessageSquare, Star, Users } from "lucide-react"
 
@@ -79,7 +77,7 @@ function Home() {
   const tabContent = {
     users: {
       title: "احصل على أفضل خدمة غسيل",
-      description: "استمتعوا بخدماتنا السريعة والموثوقة لغسيل السيارات. نوفر لكم تجربة سلسة من البداية إلى النهاية.",
+      description: "استمتعوا بخدماتنا السريعة والموثوقة لغسيل السيارات. نوفر لكم تجربة سلسة من البداية إلى النهاية عبر منصتنا التي تربطكم بمغاسل السيارات.",
       buttonText: "احجز الآن",
       imageSrc: "https://placehold.co/400x300",
       icon: Car,
@@ -87,7 +85,7 @@ function Home() {
     },
     washers: {
       title: "انضم إلى شبكة المغاسل",
-      description: "انضموا إلينا لتقديم خدماتكم لأكبر عدد من العملاء وزيادة أرباحكم من خلال منصتنا المتكاملة.",
+      description: "انضموا إلينا لتقديم خدماتكم لأكبر عدد من العملاء وزيادة أرباحكم من خلال منصتنا المتكاملة التي تربطكم بالمستخدمين.",
       buttonText: "انضم الآن",
       imageSrc: "https://placehold.co/400x300",
       icon: Users,
@@ -102,7 +100,7 @@ function Home() {
         <section className="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-16 px-4" dir="rtl">
           <div className="container mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">مرحباً بكم في WashyWay</h1>
-            <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">أفضل خدمة غسيل السيارات في الخرج</p>
+            <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">أفضل خدمة غسيل السيارات في المملكة العربية السعودية، نقدم لكم منصة تربط بين العملاء وأصحاب المغاسل.</p>
 
             <div className="bg-white/10 backdrop-blur-sm p-1 rounded-lg inline-flex mb-12">
               <TabButton activeTab={activeTab} setActiveTab={setActiveTab} tabName="users" label="للمستخدمين" />
@@ -160,4 +158,3 @@ function Home() {
 }
 
 export default Home
-
