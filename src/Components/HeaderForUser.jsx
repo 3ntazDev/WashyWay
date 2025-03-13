@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
-import { useAuth } from "../auth/useAuth"; // ✅ استيراد حالة المستخدم
+"use client"
+
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { Menu, X, User } from "lucide-react"
 
 const HeaderForUser = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-  const { user } = useAuth(); // ✅ الحصول على بيانات المستخدم
+  const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <header className="bg-white shadow-md sticky top-0 w-full z-50">
@@ -15,7 +15,7 @@ const HeaderForUser = () => {
           WashyWay
         </Link>
 
-        {/* ✅ الروابط الثلاثة */}
+        {/* Three links */}
         <nav className="hidden md:flex space-x-6">
           <Link to="/booking" className="text-gray-700 hover:text-gray-900">
             Booking
@@ -28,33 +28,23 @@ const HeaderForUser = () => {
           </Link>
         </nav>
 
-        {/* ✅ أيقونة البروفايل إذا كان المستخدم مسجل دخول */}
+        {/* Profile icon */}
         <div className="flex items-center space-x-4">
-          {user ? (
-            <button onClick={() => navigate("/profile")}>
-              <User className="w-6 h-6 text-gray-900 hover:text-indigo-600" />
-            </button>
-          ) : (
-            <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
-              Login
-            </Link>
-          )}
+          <button onClick={() => navigate("/user/profile")} className="flex items-center justify-center">
+            <User className="w-6 h-6 text-gray-900 hover:text-indigo-600" />
+          </button>
 
-          {/* ✅ زر القائمة الجانبية في الجوال */}
+          {/* Mobile menu button */}
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* ✅ القائمة الجانبية في الجوال */}
+      {/* Mobile sidebar menu */}
       {isOpen && (
         <nav className="md:hidden bg-white border-t border-gray-200 p-4">
-          <Link
-            to="/booking"
-            className="block text-gray-700 hover:text-gray-900 py-2"
-            onClick={() => setIsOpen(false)}
-          >
+          <Link to="/booking" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
             Booking
           </Link>
           <Link
@@ -71,19 +61,11 @@ const HeaderForUser = () => {
           >
             Car Wash Selection
           </Link>
-          {!user && (
-            <Link
-              to="/auth/login"
-              className="block text-gray-700 hover:text-gray-900 py-2"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
-          )}
         </nav>
       )}
     </header>
-  );
-};
+  )
+}
 
-export default HeaderForUser;
+export default HeaderForUser
+

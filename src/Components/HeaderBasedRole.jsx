@@ -1,17 +1,17 @@
-import HeaderForUser from "./HeaderForUser";
-// import HeaderForOwner from "./HeaderForOwner";
-import HeaderDefault from "./Header";
-import { useAuth } from "../Auth/useAuth";
-import Header from "./Header";
+"use client"
+
+import { useAuth } from "../auth/useAuth"
+import Header from "./Header"
+import HeaderForUser from "./HeaderForUser"
 
 const HeaderBasedRole = () => {
-  const { user, role } = useAuth(); // ✅ الآن يتم تحديث الدور فورًا عند تغيير الحالة
+  const { user, role } = useAuth() // Now role updates immediately when state changes
 
-  if (!user) return <Header />; // ✅ إذا لم يكن مسجل دخول، أظهر الهيدر العادي
-  if (role === "customer") return <HeaderForUser />; // ✅ للمستخدمين العاديين
-  if (role === "carWashOwner") return <HeaderForOwner />; // ✅ لأصحاب المغاسل
+  if (!user) return <Header /> // If not logged in, show regular header
+  if (role === "customer") return <HeaderForUser /> // For regular users
 
-  return null;
-};
+  return null
+}
 
-export default HeaderBasedRole;
+export default HeaderBasedRole
+

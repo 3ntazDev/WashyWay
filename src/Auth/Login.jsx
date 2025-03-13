@@ -1,60 +1,79 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
- // تأكد من وجود صورة لشعار Google
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // ✅ دالة تسجيل الدخول بالبريد وكلمة المرور
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError("⚠️ فشل تسجيل الدخول: " + error.message);
-      return;
-    }
-
-    if (data?.user) {
-      console.log("✅ تسجيل دخول ناجح:", data.user);
-      localStorage.setItem("token", data.session.access_token);
-
-      // ✅ جلب الدور من قاعدة البيانات
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-
-      if (userError) {
-        console.error("⚠️ خطأ أثناء جلب الدور:", userError);
-      } else {
-        localStorage.setItem("userRole", userData.role);
+      if (error) {
+        setError("⚠️ فشل تسجيل الدخول: " + error.message);
+        return;
       }
 
-      navigate("/User/Home"); // ✅ التوجيه لصفحة المستخدم
+      if (data?.user) {
+        console.log("✅ تسجيل دخول ناجح:", data.user);
+        localStorage.setItem("token", data.session.access_token);
+
+        // ✅ جلب الدور من قاعدة البيانات
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
+        if (userError) {
+          console.error("⚠️ خطأ أثناء جلب الدور:", userError);
+        } else {
+          localStorage.setItem("userRole", userData.role);
+        }
+
+        navigate("/User/Home"); // ✅ التوجيه لصفحة المستخدم
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول");
+    } finally {
+      setLoading(false);
     }
   };
 
   // ✅ دالة تسجيل الدخول عبر Google
   const handleGoogleSignIn = async () => {
     setError(null);
+    setLoading(true);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/auth/callback"
+        }
+      });
 
-    if (error) {
-      setError("⚠️ فشل تسجيل الدخول باستخدام Google: " + error.message);
+      if (error) {
+        setError("⚠️ فشل تسجيل الدخول باستخدام Google: " + error.message);
+      }
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,18 +115,27 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={loading}
+            className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
           >
-            تسجيل الدخول
+            {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
           </button>
         </form>
 
         {/* 🔹 تسجيل الدخول باستخدام Google */}
         <div className="text-center">
-          <div className="divider my-4">أو</div>
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 text-gray-500 bg-white">أو</span>
+            </div>
+          </div>
           <button
             onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <span className="text-gray-700">تسجيل الدخول باستخدام Google</span>
           </button>

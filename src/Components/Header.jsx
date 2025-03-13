@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom"; 
-import { Menu, X, User } from "lucide-react";
+"use client"
+
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { Menu, X, User } from "lucide-react"
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // حالة وهمية لتسجيل الدخول
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // حالة وهمية لتسجيل الدخول
 
   return (
     <header className="bg-white shadow-md sticky top-0 w-full z-50">
@@ -12,7 +14,7 @@ const Header = () => {
         <Link to="/" className="text-2xl font-bold text-gray-900">
           MyWebsite
         </Link>
-        
+
         <nav className="hidden md:flex space-x-6">
           <Link to="/about" className="text-gray-700 hover:text-gray-900">
             About
@@ -24,7 +26,7 @@ const Header = () => {
             Contact
           </Link>
         </nav>
-        
+
         <div className="flex items-center space-x-4">
           {isLoggedIn ? (
             <User className="w-6 h-6 text-gray-900" />
@@ -42,11 +44,7 @@ const Header = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <nav className="md:hidden bg-white border-t border-gray-200 p-4">
-          <Link
-            to="/about"
-            className="block text-gray-700 hover:text-gray-900 py-2"
-            onClick={() => setIsOpen(false)}
-          >
+          <Link to="/about" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
             About
           </Link>
           <Link
@@ -56,16 +54,12 @@ const Header = () => {
           >
             Services
           </Link>
-          <Link
-            to="/contact"
-            className="block text-gray-700 hover:text-gray-900 py-2"
-            onClick={() => setIsOpen(false)}
-          >
+          <Link to="/contact" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
             Contact
           </Link>
           {!isLoggedIn && (
             <Link
-              to="/login"
+              to="/auth/login"
               className="block text-gray-700 hover:text-gray-900 py-2"
               onClick={() => setIsOpen(false)}
             >
@@ -75,7 +69,8 @@ const Header = () => {
         </nav>
       )}
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header
+
