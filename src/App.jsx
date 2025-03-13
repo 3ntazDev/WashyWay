@@ -35,7 +35,8 @@ import CarWashDashboard from "./laundry/CarWashDashboard";
 function App() {
   return (
     <>
-      <HeaderBasedRole />
+              <HeaderBasedRole />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

@@ -43,6 +43,7 @@ const CompleteRegistration = () => {
     const updatedData = { ...userData };
     delete updatedData.id; // إزالة الـ ID لتجنب تحديثه
 
+    // تحديث البيانات في قاعدة البيانات
     const { error } = await supabase
       .from("users")
       .update(updatedData)
@@ -51,7 +52,7 @@ const CompleteRegistration = () => {
     if (error) {
       setError("فشل في تحديث البيانات");
     } else {
-      navigate("/user/dashboard");
+      navigate("/user/booking");
     }
     setSaving(false);
   };
@@ -67,7 +68,7 @@ const CompleteRegistration = () => {
     try {
       setLoading(true);
       
-      // Upload the file to Supabase Storage
+      // رفع الصورة إلى Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { upsert: true });
@@ -76,10 +77,10 @@ const CompleteRegistration = () => {
         throw uploadError;
       }
       
-      // Get the public URL
+      // الحصول على الرابط العام للصورة
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       
-      // Update the user data with the new profile picture URL
+      // تحديث بيانات المستخدم مع رابط الصورة
       setUserData({
         ...userData,
         profile_picture: data.publicUrl

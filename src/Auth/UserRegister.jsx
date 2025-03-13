@@ -1,77 +1,74 @@
-"use client"
-
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "../supabaseClient"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const UserRegister = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
-  const [role, setRole] = useState("")
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState("user");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
       if (password.length < 6) {
-        setError("⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل")
-        setLoading(false)
-        return
+        setError("⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+        setLoading(false);
+        return;
       }
 
-      console.log("محاولة تسجيل مستخدم جديد...")
-      // تسجيل المستخدم باستخدام supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
+            role: role,
           },
         },
-      })
+      });
 
       if (error) {
-        console.error("خطأ في التسجيل:", error)
-        setError("⚠️ خطأ في التسجيل: " + error.message)
-        return
+        console.error("خطأ في التسجيل:", error);
+        setError("⚠️ خطأ في التسجيل: " + error.message);
+        return;
       }
 
       if (data?.user) {
-        console.log("تم إنشاء المستخدم في Auth، جاري إنشاء سجل في جدول users...")
-        // حفظ بيانات المستخدم في جدول users
+        // إدخال المستخدم في جدول users بعد التسجيل
         const { error: insertError } = await supabase.from("users").insert([
           {
             id: data.user.id,
             email: email,
             name: fullName,
             role: role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
-        ])
+        ]);
 
         if (insertError) {
-          console.error("خطأ في حفظ البيانات:", insertError)
-          setError("⚠️ خطأ في حفظ البيانات: " + insertError.message)
-          return
+          console.error("خطأ في حفظ البيانات:", insertError);
+          setError("⚠️ خطأ في حفظ البيانات: " + insertError.message);
+          return;
         }
 
-        console.log("تم إنشاء سجل المستخدم بنجاح، جاري التوجيه...")
-        // توجيه المستخدم إلى صفحة إكمال التسجيل
-        navigate("/user/complete-registration", { state: { userId: data.user.id } })
+        // التوجيه إلى صفحة إكمال التسجيل
+        navigate("/auth/complete-registration", { state: { userId: data.user.id } });
       }
     } catch (err) {
-      console.error("خطأ غير متوقع:", err)
-      setError("⚠️ حدث خطأ غير متوقع أثناء التسجيل")
+      console.error("خطأ غير متوقع:", err);
+      setError("⚠️ حدث خطأ غير متوقع أثناء التسجيل");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
@@ -178,8 +175,7 @@ const UserRegister = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserRegister
-
+export default UserRegister;

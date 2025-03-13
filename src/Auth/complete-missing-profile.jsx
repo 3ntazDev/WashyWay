@@ -45,14 +45,14 @@ const CompleteMissingProfile = () => {
         }
 
         if (existingUser) {
-          navigate("/user/dashboard");
+          navigate("/user/booking");
           return;
         }
 
         setLoading(false);
       } catch (err) {
-        console.error("Error checking user:", err);
-        setError("حدث خطأ في التحقق من بيانات المستخدم");
+        console.error("خطأ في التحقق من المستخدم:", err);
+        setError("حدث خطأ أثناء التحقق من بيانات المستخدم");
         setLoading(false);
       }
     };
@@ -69,51 +69,86 @@ const CompleteMissingProfile = () => {
     e.preventDefault();
     setSaving(true);
     setError(null);
-
+  
     try {
       if (!user) {
         throw new Error("لم يتم العثور على بيانات المستخدم");
       }
-
-      if (!formData.name || !formData.phone) {
+  
+      if (!formData.name.trim() || !formData.phone.trim()) {
         throw new Error("جميع الحقول مطلوبة");
       }
-
+  
       if (!/^\d{10}$/.test(formData.phone)) {
         throw new Error("رقم الهاتف يجب أن يتكون من 10 أرقام");
       }
-
-      const { error: upsertError } = await supabase
+  
+      console.log("📤 البيانات المرسلة إلى Supabase:", {
+        id: user.id,
+        email: user.email,
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        role: formData.role,
+        is_verified: false,
+        created_at: new Date().toISOString(),
+      });
+  
+      // ✅ التحقق مما إذا كان البريد الإلكتروني موجودًا في الجدول
+      const { data: existingUser, error: fetchError } = await supabase
         .from("users")
-        .upsert([
-          {
-            id: user.id,
-            email: user.email,
-            name: formData.name,
-            phone: formData.phone,
+        .select("id, email")
+        .eq("email", user.email)
+        .single();
+  
+      let response;
+      if (existingUser) {
+        // ✅ إذا كان المستخدم موجودًا، نقوم بتحديث بياناته فقط
+        response = await supabase
+          .from("users")
+          .update({
+            name: formData.name.trim(),
+            phone: formData.phone.trim(),
             role: formData.role,
-            is_verified: false,
-            created_at: new Date().toISOString()
-          }
-        ]);
-
-      if (upsertError) {
-        console.error("Upsert error:", upsertError);
-        throw new Error("حدث خطأ أثناء حفظ البيانات");
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingUser.id);
+      } else {
+        // ✅ إذا لم يكن موجودًا، نقوم بإدخال بيانات جديدة
+        response = await supabase
+          .from("users")
+          .insert([
+            {
+              id: user.id,
+              email: user.email,
+              name: formData.name.trim(),
+              phone: formData.phone.trim(),
+              role: formData.role,
+              is_verified: false,
+              created_at: new Date().toISOString(),
+            }
+          ]);
       }
-
+  
+      if (response.error) {
+        console.error("⚠️ خطأ أثناء الحفظ في Supabase:", response.error);
+        throw new Error("حدث خطأ أثناء حفظ البيانات: " + response.error.message);
+      }
+  
+      console.log("✅ تم حفظ البيانات بنجاح!", response.data);
       setSuccess(true);
       setTimeout(() => {
         navigate("/user/dashboard");
       }, 2000);
-
+  
     } catch (err) {
-      console.error("Error saving profile:", err);
+      console.error("❌ خطأ أثناء حفظ الملف الشخصي:", err);
       setError(err.message || "حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.");
     } finally {
       setSaving(false);
     }
   };
+  
+  
 
   if (loading) {
     return (
@@ -200,30 +235,11 @@ const CompleteMissingProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              الدور
-            </label>
-            <select
-              id="role"
-              name="role"
-              required
-              value={formData.role}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="user">مستخدم</option>
-              <option value="admin">مشرف</option>
-            </select>
-          </div>
-
-          <div>
             <button
               type="submit"
               disabled={saving}
               className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                saving 
-                  ? "bg-indigo-400 cursor-not-allowed" 
-                  : "bg-indigo-600 hover:bg-indigo-700"
+                saving ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
             >
               {saving ? "جاري الحفظ..." : "حفظ البيانات"}

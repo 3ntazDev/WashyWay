@@ -1,66 +1,54 @@
-"use client"
-
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { supabase } from "../supabaseClient"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
       // تسجيل الدخول باستخدام supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      })
+      });
 
       if (error) {
-        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة")
-        return
-      }
-
-      if (!data?.user) {
-        setError("⚠️ لم يتم العثور على بيانات المستخدم")
-        return
+        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        setLoading(false);
+        return;
       }
 
       // التحقق من وجود المستخدم في جدول users
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("*")
-        .eq("id", data.user.id)
-        .single()
+        .eq("email", email)
+        .single();
 
-      if (userError && userError.code === "PGRST116") {
-        // المستخدم غير موجود في جدول users
-        // توجيه إلى صفحة إكمال البيانات المفقودة
-        navigate("/auth/complete-missing-profile")
-        return
+      if (userError || !userData) {
+        setError("⚠️ لم يتم العثور على بيانات المستخدم");
+        setLoading(false);
+        return;
       }
 
-      if (userError) {
-        setError("⚠️ حدث خطأ في جلب بيانات المستخدم")
-        return
-      }
-
-      // المستخدم موجود، توجيه إلى لوحة التحكم
-      navigate("/user/dashboard")
+      // التوجيه للمستخدم إلى صفحة لوحة التحكم
+      navigate("/user/booking");
     } catch (err) {
-      console.error("Error during login:", err)
-      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول")
+      console.error("Error during login:", err);
+      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
@@ -137,8 +125,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
-
+export default Login;
