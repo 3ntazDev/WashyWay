@@ -20,6 +20,7 @@ import UserRegister from "./Auth/UserRegister";
 import OwnerRegister from "./Auth/OwnerRegister";
 import Login from "./Auth/Login";
 import CompleteRegistration from "./Auth/CompleteRegistration";
+import CompleteMissingProfile from "./Auth/complete-missing-profile";
 {
   /* Admin Routes */
 }
@@ -51,7 +52,14 @@ function App() {
         <Route path="/auth/user/register" element={<UserRegister />} />
         <Route path="/auth/owner/register" element={<OwnerRegister />} />
         <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/complete-registration" element={<CompleteRegistration />} />
+        <Route
+          path="/auth/complete-registration"
+          element={<CompleteRegistration />}
+        />
+        <Route
+          path="/auth/complete-missing-profile"
+          element={<CompleteMissingProfile />}
+        />
         {/* Admin Routes */}
 
         {/* Laundry Routes */}
