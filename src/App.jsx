@@ -19,7 +19,7 @@ import ProfilePage from "./User/ProfilePage";
 import UserRegister from "./Auth/UserRegister";
 import OwnerRegister from "./Auth/OwnerRegister";
 import Login from "./Auth/Login";
-
+import CompleteRegistration from "./Auth/CompleteRegistration";
 {
   /* Admin Routes */
 }
@@ -34,7 +34,7 @@ import CarWashDashboard from "./laundry/CarWashDashboard";
 function App() {
   return (
     <>
-    <HeaderBasedRole />
+      <HeaderBasedRole />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -51,7 +51,7 @@ function App() {
         <Route path="/auth/user/register" element={<UserRegister />} />
         <Route path="/auth/owner/register" element={<OwnerRegister />} />
         <Route path="/auth/login" element={<Login />} />
-
+        <Route path="/auth/complete-registration" element={<CompleteRegistration />} />
         {/* Admin Routes */}
 
         {/* Laundry Routes */}
