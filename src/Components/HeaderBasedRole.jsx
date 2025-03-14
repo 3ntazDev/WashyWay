@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from "../auth/useAuth"
+import { useAuth } from "../Auth/useAuth"
 import Header from "./Header"
 import HeaderForUser from "./HeaderForUser"
 
