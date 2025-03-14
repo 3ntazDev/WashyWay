@@ -1,8 +1,7 @@
 "use client"
 
-import { useAuth } from "../auth/useAuth"
+import { useAuth } from "../auth/useAuth";
 import Header from "./Header"
-import HeaderForUser from "./HeaderForUser"
 
 const HeaderBasedRole = () => {
   const { user, role } = useAuth() // Now role updates immediately when state changes
