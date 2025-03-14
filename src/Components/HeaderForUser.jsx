@@ -11,9 +11,8 @@ const HeaderForUser = () => {
   return (
     <header className="bg-white shadow-md sticky top-0 w-full z-50">
       <div className="container mx-auto flex justify-between items-center p-4">
-        <Link to="/" className="text-2xl font-bold text-gray-900">
-          WashyWay
-        </Link>
+        {/* حذف الشعار الذي يوجه إلى الصفحة الرئيسية */}
+        <div className="text-2xl font-bold text-gray-900">WashyWay</div>
 
         {/* Three links */}
         <nav className="hidden md:flex space-x-6">
@@ -68,4 +67,3 @@ const HeaderForUser = () => {
 }
 
 export default HeaderForUser
-

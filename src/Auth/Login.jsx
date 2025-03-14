@@ -15,32 +15,33 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // تسجيل الدخول باستخدام supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
+      if (signInError) {
         setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
         setLoading(false);
         return;
       }
 
-      // التحقق من وجود المستخدم في جدول users
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("email", email)
-        .single();
+      // جلب بيانات المستخدم من Supabase auth
+      const { data: userData, error: userError } = await supabase.auth.getUser();
 
-      if (userError || !userData) {
-        setError("⚠️ لم يتم العثور على بيانات المستخدم");
+      if (userError || !userData?.user) {
+        setError("⚠️ حدث خطأ أثناء جلب بيانات المستخدم.");
         setLoading(false);
         return;
       }
 
-      // التوجيه للمستخدم إلى صفحة لوحة التحكم
+      // التحقق من أن الحساب مفعل
+      if (!userData.user.email_confirmed_at) {
+        setError("⚠️ الحساب غير مفعل. يرجى التحقق من بريدك الإلكتروني.");
+        setLoading(false);
+        return;
+      }
+
       navigate("/user/booking");
     } catch (err) {
       console.error("Error during login:", err);
