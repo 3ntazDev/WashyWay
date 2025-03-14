@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import { Menu, X, User } from "lucide-react";
-=======
-import { Menu, X } from "lucide-react";
->>>>>>> cb51eaa5488c2952fe102c81a4442e95c5c472c1
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,15 +59,11 @@ const Header = () => {
           >
             Contact
           </Link>
-<<<<<<< HEAD
           <Link
             to="/auth/login"
             className="block text-gray-700 hover:text-gray-900 py-2"
             onClick={() => setIsOpen(false)}
           >
-=======
-          <Link to="/auth/login" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
->>>>>>> cb51eaa5488c2952fe102c81a4442e95c5c472c1
             Login
           </Link>
         </nav>
