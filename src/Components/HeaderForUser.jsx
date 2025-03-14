@@ -17,7 +17,7 @@ const HeaderForUser = () => {
 
         {/* Three links */}
         <nav className="hidden md:flex space-x-6">
-          <Link to="/booking" className="text-gray-700 hover:text-gray-900">
+          <Link to="/user/booking" className="text-gray-700 hover:text-gray-900">
             Booking
           </Link>
           <Link to="/bookings" className="text-gray-700 hover:text-gray-900">
