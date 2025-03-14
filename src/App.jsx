@@ -7,11 +7,10 @@ import HeaderBasedRole from "./Components/HeaderBasedRole";
 {
   /* User Routes */
 }
-import BookingPage from "./User/BookingPage";
-import BookingsPage from "./User/BookingsPage";
+import LaundriesPage  from "./User/LaundriesPage";
 import LoginPage from "./Auth/Login";
 import ProfilePage from "./User/ProfilePage";
-
+import BookingFormPage from "./User/BookingFormPage";
 {
   /* Auth Routes */
 }
@@ -46,8 +45,8 @@ function App() {
         {/* User Routes */}
 
         <Route path="/user/profile" element={<ProfilePage />} />
-        <Route path="/user/booking" element={<BookingPage />} />
-        <Route path="/user/bookings" element={<BookingsPage />} />
+        <Route path="/user/booking" element={<LaundriesPage  />} />
+        <Route path="/booking/:laundryId" element={<BookingFormPage />} />
 
         {/* Auth Routes */}
         <Route path="/auth/user/register" element={<UserRegister />} />
