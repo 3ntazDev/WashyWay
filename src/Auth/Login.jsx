@@ -9,81 +9,60 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ دالة تسجيل الدخول بالبريد وكلمة المرور
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
+      // تسجيل الدخول باستخدام supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        setError("⚠️ فشل تسجيل الدخول: " + error.message);
+        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        setLoading(false);
         return;
       }
 
-      if (data?.user) {
-        console.log("✅ تسجيل دخول ناجح:", data.user);
-        localStorage.setItem("token", data.session.access_token);
+      // التحقق من وجود المستخدم في جدول users
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .single();
 
-        // ✅ جلب الدور من قاعدة البيانات
-        const { data: userData, error: userError } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
-
-        if (userError) {
-          console.error("⚠️ خطأ أثناء جلب الدور:", userError);
-        } else {
-          localStorage.setItem("userRole", userData.role);
-        }
-
-        navigate("/User/Home"); // ✅ التوجيه لصفحة المستخدم
+      if (userError || !userData) {
+        setError("⚠️ لم يتم العثور على بيانات المستخدم");
+        setLoading(false);
+        return;
       }
+
+      // التوجيه للمستخدم إلى صفحة لوحة التحكم
+      navigate("/user/booking");
     } catch (err) {
-      console.error("Login error:", err);
+      console.error("Error during login:", err);
       setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ دالة تسجيل الدخول عبر Google
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin + "/auth/callback"
-        }
-      });
-
-      if (error) {
-        setError("⚠️ فشل تسجيل الدخول باستخدام Google: " + error.message);
-      }
-    } catch (err) {
-      console.error("Google login error:", err);
-      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول باستخدام Google");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-900">تسجيل الدخول</h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+        <div className="mb-6">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">تسجيل الدخول</h2>
+        </div>
 
-        {/* 🔹 نموذج تسجيل الدخول بالبريد وكلمة المرور */}
+        {error && (
+          <div className="mb-4 bg-red-50 border-r-4 border-red-500 p-4 rounded-md">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -91,66 +70,59 @@ const Login = () => {
             </label>
             <input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="البريد الإلكتروني"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
+
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               كلمة المرور
             </label>
             <input
               id="password"
+              name="password"
               type="password"
+              autoComplete="current-password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="كلمة المرور"
-              required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
-          >
-            {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-          </button>
-        </form>
 
-        {/* 🔹 تسجيل الدخول باستخدام Google */}
-        <div className="text-center">
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 text-gray-500 bg-white">أو</span>
-            </div>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                loading ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+            >
+              {loading ? "جاري تسجيل الدخول..." : "دخول"}
+            </button>
           </div>
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
-          >
-            <span className="text-gray-700">تسجيل الدخول باستخدام Google</span>
-          </button>
-        </div>
 
-        {/* 🔹 زر الانتقال إلى صفحة تسجيل الحساب */}
-        <div className="text-center">
-          <p className="text-sm text-gray-600">ليس لديك حساب؟</p>
-          <button
-            onClick={() => navigate("/auth/user/register")}
-            className="text-indigo-600 hover:underline"
-          >
-            إنشاء حساب جديد
-          </button>
-        </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              ليس لديك حساب؟{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/auth/user/register")}
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                سجل هنا
+              </button>
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   );
