@@ -43,18 +43,18 @@ const HeaderForUser = () => {
       {/* Mobile sidebar menu */}
       {isOpen && (
         <nav className="md:hidden bg-white border-t border-gray-200 p-4">
-          <Link to="/booking" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
+          <Link to="/user/booking" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
             Booking
           </Link>
           <Link
-            to="/bookings"
+            to="/user/orders"
             className="block text-gray-700 hover:text-gray-900 py-2"
             onClick={() => setIsOpen(false)}
           >
             Bookings
           </Link>
           <Link
-            to="/carwash-selection"
+            to="/user/orders"
             className="block text-gray-700 hover:text-gray-900 py-2"
             onClick={() => setIsOpen(false)}
           >
