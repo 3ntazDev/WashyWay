@@ -32,6 +32,10 @@ import CompleteMissingProfile from "./Auth/complete-missing-profile";
 import CarWashProfile from "./laundry/CarWashProfile";
 import CarWashLogin from "./laundry/CarWashLogin";
 import CarWashDashboard from "./laundry/CarWashDashboard";
+import CarWashSignUp from "./laundry/CarWashSignUp";
+import FormLaundry from "./laundry/FormLaundry";
+
+
 
 function App() {
   return (
@@ -69,6 +73,11 @@ function App() {
         <Route path="/laundry/login" element={<CarWashLogin />} />
         <Route path="/laundry/dashboard" element={<CarWashDashboard />} />
         <Route path="/laundry/profile" element={<CarWashProfile />} />
+        <Route path="/laundry/signup" element={<CarWashSignUp />} />  {/* إضافة مسار التسجيل */}
+        <Route path="/laundry/form" element={<FormLaundry />} /> {/* إضافة مسار النموذج */}
+
+
+
       </Routes>
     </>
   );
