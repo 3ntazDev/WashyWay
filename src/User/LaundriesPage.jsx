@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, ChevronRight, Star, ShowerHead } from "lucide-react";
+import { Search, MapPin, ChevronRight, Star, ShowerHead, Loader2 } from "lucide-react";
 
 function LaundriesPage() {
   const [laundries, setLaundries] = useState([]);
@@ -63,6 +61,7 @@ function LaundriesPage() {
             اختر من بين أفضل المغاسل في منطقتك واحجز بكل سهولة
           </p>
         </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-50"></div>
       </header>
 
       {/* Search */}
@@ -84,13 +83,13 @@ function LaundriesPage() {
       {/* Laundries List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <div className="h-12 w-12 text-white animate-spin mb-4"></div>
+          <Loader2 className="h-12 w-12 text-white animate-spin mb-4" />
           <p className="text-xl">جاري تحميل المغاسل...</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
           {filteredLaundries.map((laundry) => (
-            <div key={laundry.id} className="bg-white/90 text-gray-900 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 overflow-hidden">
+            <div key={laundry.id} className="bg-white/90 text-gray-900 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 overflow-hidden transition-all duration-300">
               <div className="h-40 bg-gradient-to-r from-blue-400 to-purple-400 relative">
                 {laundry.rating && (
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">

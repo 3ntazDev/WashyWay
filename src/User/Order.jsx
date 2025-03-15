@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 const Order = () => {
   const [orders, setOrders] = useState([]);
@@ -7,41 +7,71 @@ const Order = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('*');
+        const { data, error } = await supabase.from("bookings").select("*");
         if (error) throw error;
         setOrders(data);
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
       }
     };
-
     fetchOrders();
   }, []);
+
+  const handleDelete = async (orderId, status) => {
+    if (status === "مقبول") {
+      alert("لا يمكنك حذف طلب تم قبوله.");
+      return;
+    }
+    if (!window.confirm("هل أنت متأكد أنك تريد حذف هذا الطلب؟")) return;
+
+    const { error } = await supabase.from("bookings").delete().eq("id", orderId);
+
+    if (error) {
+      console.error("Error deleting order:", error);
+      alert("حدث خطأ أثناء الحذف.");
+    } else {
+      setOrders(orders.filter((order) => order.id !== orderId));
+      alert("تم حذف الطلب بنجاح!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
       <div className="bg-white shadow-lg rounded-lg p-8 w-3/4 text-gray-800">
-        <h1 className="text-3xl font-semibold mb-4">All Orders</h1>
-        <table className="min-w-full bg-white">
+        <h1 className="text-3xl font-semibold mb-4">جميع الطلبات</h1>
+        <table className="min-w-full bg-white border">
           <thead>
-            <tr>
-              <th className="py-2">Order ID</th>
-              <th className="py-2">Customer Name</th>
-              <th className="py-2">Service</th>
-              <th className="py-2">Date</th>
-              <th className="py-2">Status</th>
+            <tr className="bg-gray-200">
+              <th className="py-2 px-4 border">رقم الطلب</th>
+              <th className="py-2 px-4 border">اسم العميل</th>
+              <th className="py-2 px-4 border">المغسلة</th>
+              <th className="py-2 px-4 border">الخدمة</th>
+              <th className="py-2 px-4 border">التاريخ</th>
+              <th className="py-2 px-4 border">الوقت المتاح</th>
+              <th className="py-2 px-4 border">الحالة</th>
+              <th className="py-2 px-4 border">الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td className="py-2">{order.id}</td>
-                <td className="py-2">{order.customer_name}</td>
-                <td className="py-2">{order.service}</td>
-                <td className="py-2">{order.date}</td>
-                <td className="py-2">{order.status}</td>
+            {orders.map((order) => (
+              <tr key={order.id} className="border-t">
+                <td className="py-2 px-4 border">{order.id}</td>
+                <td className="py-2 px-4 border">{order.customer_name}</td>
+                <td className="py-2 px-4 border">{order.laundry_name}</td> {/* إضافة المغسلة */}
+                <td className="py-2 px-4 border">{order.service_type}</td> {/* إضافة نوع الخدمة */}
+                <td className="py-2 px-4 border">{order.booking_date}</td> {/* إضافة تاريخ الحجز */}
+                <td className="py-2 px-4 border">{order.available_slot}</td> {/* إضافة الوقت المتاح */}
+                <td className="py-2 px-4 border">{order.status}</td>
+                <td className="py-2 px-4 border">
+                  {order.status !== "مقبول" && (
+                    <button
+                      onClick={() => handleDelete(order.id, order.status)}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      حذف
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

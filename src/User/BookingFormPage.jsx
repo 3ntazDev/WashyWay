@@ -1,131 +1,122 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../Auth/useAuth";
+import { useParams } from "react-router-dom";
 
 const BookingFormPage = () => {
-  const { user } = useAuth(); // الحصول على بيانات المستخدم
-  const [laundries, setLaundries] = useState([]);
-  const [selectedLaundry, setSelectedLaundry] = useState(""); // المغسلة المحددة
+  const { user } = useAuth();
+  const { laundryId } = useParams(); // الحصول على معرّف المغسلة من الـ URL
+  const [laundry, setLaundry] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState(""); // الوقت المحدد
-  const [bookingDate, setBookingDate] = useState(""); // التاريخ والوقت
-  const [serviceType, setServiceType] = useState(""); // نوع الخدمة
-  const [status, setStatus] = useState("pending"); // حالة الحجز
-  const [totalAmount, setTotalAmount] = useState(0); // المبلغ الإجمالي
-  const [error, setError] = useState(""); // الرسالة في حالة وجود خطأ
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [serviceType, setServiceType] = useState("");
+  const [status, setStatus] = useState("pending");
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
-    // جلب قائمة المغاسل من قاعدة البيانات
-    const fetchLaundries = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("laundries")
-          .select("*");
-        if (error) {
-          console.error("Error fetching laundries:", error);
-          setError("حدث خطأ أثناء تحميل المغاسل.");
-        } else {
-          setLaundries(data);
-          setSelectedLaundry(data[0]?.id); // تعيين أول مغسلة بشكل افتراضي
+    if (laundryId) {
+      const fetchLaundryDetails = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("laundries")
+            .select("*")
+            .eq("id", laundryId)
+            .single(); // نحصل على المغسلة الواحدة
+          if (error) throw error;
+          setLaundry(data);
+        } catch (error) {
+          setMessage({ type: "error", text: "حدث خطأ أثناء تحميل المغسلة." });
         }
-      } catch (error) {
-        console.error("Error fetching laundries:", error);
-        setError("حدث خطأ أثناء تحميل المغاسل.");
-      }
-    };
-    fetchLaundries();
-  }, []);
+      };
+      fetchLaundryDetails();
+    }
+  }, [laundryId]);
 
   useEffect(() => {
-    if (selectedLaundry) {
-      // جلب المواعيد المتاحة للمغسلة المحددة
+    if (laundry) {
       const fetchAvailableSlots = async () => {
         try {
           const { data, error } = await supabase
             .from("laundries")
             .select("available_slots")
-            .eq("id", selectedLaundry);
-          if (error) {
-            console.error("Error fetching available slots:", error);
-            setError("حدث خطأ أثناء تحميل المواعيد.");
-          } else {
-            setAvailableSlots(data[0]?.available_slots || []);
-          }
+            .eq("id", laundry.id);
+          if (error) throw error;
+          setAvailableSlots(data[0]?.available_slots || []);
         } catch (error) {
-          console.error("Error fetching available slots:", error);
-          setError("حدث خطأ أثناء تحميل المواعيد.");
+          setMessage({ type: "error", text: "حدث خطأ أثناء تحميل المواعيد." });
         }
       };
       fetchAvailableSlots();
     }
-  }, [selectedLaundry]);
+  }, [laundry]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setMessage({ type: "", text: "" });
 
-    // التأكد من تعبئة جميع الحقول
-    if (!selectedLaundry || !selectedSlot || !bookingDate || !serviceType) {
-      setError("يرجى ملء جميع الحقول.");
+    if (!laundry || !selectedSlot || !bookingDate || !serviceType) {
+      setMessage({ type: "error", text: "يرجى ملء جميع الحقول." });
       return;
     }
 
-    // إعداد بيانات الحجز
     const bookingData = {
-      user_id: user.id,  // تأكد من أن user_id هو UUID صالح
-      laundry_id: parseInt(selectedLaundry),  // تحويل الـ laundry_id إلى عدد صحيح (إذا كان يتطلب ذلك)
+      user_id: user.id,
+      laundry_id: laundry.id,
       service_type: serviceType,
       booking_date: bookingDate,
-      available_slot: selectedSlot,  // تأكد من أن الوقت متاح
+      available_slot: selectedSlot,
       status,
       total_amount: totalAmount,
     };
 
-    console.log("Booking Data:", bookingData); // عرض بيانات الحجز في الـ console
-
     try {
       const { error } = await supabase.from("bookings").insert([bookingData]);
-      if (error) {
-        console.error("Error during booking:", error);
-        setError("حدث خطأ أثناء الحجز.");
-      } else {
-        console.log("Booking successful!");
-      }
+      if (error) throw error;
+      setMessage({
+        type: "success",
+        text: "تم الحجز بنجاح! يمكنك مراجعة سجل الحجوزات.",
+      });
     } catch (error) {
-      console.error("Unexpected error during booking:", error);
-      setError("حدث خطأ غير متوقع أثناء الحجز.");
+      setMessage({ type: "error", text: "حدث خطأ أثناء الحجز، حاول مرة أخرى." });
     }
   };
 
-  return (
-    <div>
-      <h1>حجز خدمة مغسلة</h1>
-      <form onSubmit={handleSubmit}>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+  if (!laundry) {
+    return <div>جاري تحميل بيانات المغسلة...</div>;
+  }
 
-        <div>
-          <label>اختار المغسلة:</label>
-          <select onChange={(e) => setSelectedLaundry(e.target.value)} value={selectedLaundry}>
-            <option value="">اختر مغسلة</option>
-            {laundries.map((laundry) => (
-              <option key={laundry.id} value={laundry.id}>
-                {laundry.name}
-              </option>
-            ))}
-          </select>
+  return (
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <h1 className="text-2xl font-semibold text-center text-gray-700 mb-6">حجز خدمة مغسلة</h1>
+      {message.text && (
+        <p className={`p-4 mb-4 text-white ${message.type === "error" ? "bg-red-500" : "bg-green-500"} rounded`}>
+          {message.text}
+        </p>
+      )}
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">المغسلة: {laundry.name}</label>
         </div>
 
-        <div>
-          <label>اختار الوقت والتاريخ:</label>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">اختار التاريخ:</label>
           <input
-            type="datetime-local"
+            type="date"
             value={bookingDate}
             onChange={(e) => setBookingDate(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
           />
         </div>
 
-        <div>
-          <label>اختار الوقت المتاح:</label>
-          <select onChange={(e) => setSelectedSlot(e.target.value)} value={selectedSlot}>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">اختار الوقت المتاح:</label>
+          <select
+            onChange={(e) => setSelectedSlot(e.target.value)}
+            value={selectedSlot}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
             <option value="">اختر الوقت</option>
             {availableSlots.length > 0 ? (
               availableSlots.map((slot, index) => (
@@ -134,22 +125,39 @@ const BookingFormPage = () => {
                 </option>
               ))
             ) : (
-              <option value="" disabled>لا توجد مواعيد متاحة</option>
+              <option value="" disabled>
+                لا توجد أوقات متاحة
+              </option>
             )}
           </select>
         </div>
 
-        <div>
-          <label>نوع الخدمة:</label>
-          <select onChange={(e) => setServiceType(e.target.value)} value={serviceType}>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">نوع الخدمة:</label>
+          <select
+            onChange={(e) => setServiceType(e.target.value)}
+            value={serviceType}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
             <option value="">اختر نوع الخدمة</option>
-            <option value="cleaning">تنظيف</option>
-            <option value="washing">غسيل</option>
-            <option value="dry_cleaning">تنظيف جاف</option>
+            <option value="غسيل">غسيل</option>
+            <option value="تنظيف">تنظيف</option>
+            <option value="تنظيف وتجفيف">تنظيف وتجفيف</option>
           </select>
         </div>
 
-        <button type="submit">إجراء الحجز</button>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">المبلغ الإجمالي:</label>
+          <input
+            type="number"
+            value={totalAmount}
+            onChange={(e) => setTotalAmount(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="المبلغ الإجمالي"
+          />
+        </div>
+
+        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md">حجز الآن</button>
       </form>
     </div>
   );
