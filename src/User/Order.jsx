@@ -56,11 +56,11 @@ const Order = () => {
             {orders.map((order) => (
               <tr key={order.id} className="border-t">
                 <td className="py-2 px-4 border">{order.id}</td>
-                <td className="py-2 px-4 border">{order.name}</td> {/* عرض اسم العميل */}
-                <td className="py-2 px-4 border">{order.laundry_name}</td>
-                <td className="py-2 px-4 border">{order.service_type}</td>
-                <td className="py-2 px-4 border">{order.booking_date}</td>
-                <td className="py-2 px-4 border">{order.available_slot}</td>
+                <td className="py-2 px-4 border">{order.customer_name}</td>
+                <td className="py-2 px-4 border">{order.laundry_name}</td> {/* إضافة المغسلة */}
+                <td className="py-2 px-4 border">{order.service_type}</td> {/* إضافة نوع الخدمة */}
+                <td className="py-2 px-4 border">{order.booking_date}</td> {/* إضافة تاريخ الحجز */}
+                <td className="py-2 px-4 border">{order.available_slot}</td> {/* إضافة الوقت المتاح */}
                 <td className="py-2 px-4 border">{order.status}</td>
                 <td className="py-2 px-4 border">
                   {order.status !== "مقبول" && (
