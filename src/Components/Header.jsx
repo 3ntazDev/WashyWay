@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, User } from "lucide-react";
+import YellowLogo from "../assets/logo-yellow.png";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,9 +11,9 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md sticky top-0 w-full z-50">
       <div className="container mx-auto flex justify-between items-center p-4">
-        {/* ✅ اسم الموقع */}
+        {/* ✅ الشعار */}
         <Link to="/" className="text-2xl font-bold text-gray-900">
-          WashyWay
+          <img src={YellowLogo} alt="Washy Way Logo" className="h-25" />
         </Link>
 
         {/* ✅ القائمة الرئيسية */}
@@ -49,7 +50,11 @@ const Header = () => {
           >
             About
           </Link>
-          <Link to="/services" className="block text-gray-700 hover:text-gray-900 py-2" onClick={() => setIsOpen(false)}>
+          <Link
+            to="/services"
+            className="block text-gray-700 hover:text-gray-900 py-2"
+            onClick={() => setIsOpen(false)}
+          >
             Services
           </Link>
           <Link

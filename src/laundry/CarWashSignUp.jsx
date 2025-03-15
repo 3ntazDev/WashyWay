@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { supabase } from '../supabaseClient'; // استيراد supabase
 import { useNavigate } from 'react-router-dom'; // لتنقل إلى صفحة أخرى بعد الإرسال
 
@@ -35,12 +35,13 @@ function SignUp() {
       alert('حدث خطأ أثناء التسجيل');
       console.error(error.message);
     } else {
-      // إضافة بيانات المغسلة إلى الجدول بعد التسجيل
-      await supabase.from('laundries').insert([
+      // إضافة بيانات المستخدم إلى الجدول users مع تعيين role إلى "Owner"
+      await supabase.from('users').insert([
         {
           name: formData.name,
-          phone: formData.phone,
           email: formData.email,
+          phone: formData.phone,
+          role: 'Owner',  // تعيين الدور إلى "Owner" بشكل افتراضي
         }
       ]);
 

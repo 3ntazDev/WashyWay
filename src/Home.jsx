@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Car, MessageSquare, Star, Users } from "lucide-react"
+import YellowLogo from "./assets/logo-yellow.png";
 
 // Reusable Components
 const TabButton = ({ activeTab, setActiveTab, tabName, label }) => (
@@ -34,7 +35,7 @@ const Section = ({ title, description, buttonText, imageSrc, icon: Icon, bgColor
         </div>
       </div>
       <div className="md:w-1/2">
-        <img src={imageSrc || "/placeholder.svg"} alt={title} className="rounded-lg shadow-lg" />
+        <img src={YellowLogo || "/placeholder.svg"} alt={title} className="rounded-lg shadow-lg" />
       </div>
     </div>
   </div>

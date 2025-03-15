@@ -3,11 +3,12 @@ import { supabase } from '../supabaseClient'; // استيراد supabase
 
 function FormLaundry() {
   const [formData, setFormData] = useState({
-    id: '',
     name: '',
     location: '',
     description: '',
-    phone: ''
+    phone: '',
+    available_slots: '', // أوقات المغسلة المتاحة
+    img_url: '', // رابط الصورة
   });
 
   // دالة لتحديث بيانات المدخلات
@@ -23,15 +24,19 @@ function FormLaundry() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const user = supabase.auth.user(); // الحصول على المستخدم الذي قام بتسجيل الدخول
+
     const { data, error } = await supabase
       .from('laundries') // تحديد الجدول
       .insert([
         {
-          id: formData.id,
           name: formData.name,
           location: formData.location,
           description: formData.description,
-          phone: formData.phone
+          phone: formData.phone,
+          available_slots: formData.available_slots.split(','), // تحويل الأوقات المتاحة إلى مصفوفة
+          img_url: formData.img_url, // رابط الصورة
+          owner_id: user.id, // ربط المغسلة مع صاحبها
         }
       ]);
 
@@ -49,19 +54,6 @@ function FormLaundry() {
         <h2 className="text-3xl font-bold text-center text-gray-700 mb-6">إدخال بيانات المغسلة</h2>
         
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="id" className="block text-sm font-medium text-gray-600">رقم المغسلة</label>
-            <input
-              type="text"
-              id="id"
-              name="id"
-              value={formData.id}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-600">اسم المغسلة</label>
             <input
@@ -111,6 +103,31 @@ function FormLaundry() {
               onChange={handleChange}
               className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="available_slots" className="block text-sm font-medium text-gray-600">الأوقات المتاحة (فصلها بفواصل)</label>
+            <input
+              type="text"
+              id="available_slots"
+              name="available_slots"
+              value={formData.available_slots}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="img_url" className="block text-sm font-medium text-gray-600">رابط الصورة</label>
+            <input
+              type="text"
+              id="img_url"
+              name="img_url"
+              value={formData.img_url}
+              onChange={handleChange}
+              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
