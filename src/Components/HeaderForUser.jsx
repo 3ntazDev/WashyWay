@@ -19,7 +19,7 @@ const HeaderForUser = () => {
           <Link to="/user/booking" className="text-gray-700 hover:text-gray-900">
             Booking
           </Link>
-          <Link to="/bookings" className="text-gray-700 hover:text-gray-900">
+          <Link to="/user/orders" className="text-gray-700 hover:text-gray-900">
             Bookings
           </Link>
           <Link to="/carwash-selection" className="text-gray-700 hover:text-gray-900">

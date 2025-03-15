@@ -11,6 +11,8 @@ import LaundriesPage  from "./User/LaundriesPage";
 import LoginPage from "./Auth/Login";
 import ProfilePage from "./User/ProfilePage";
 import BookingFormPage from "./User/BookingFormPage";
+import Order from "./User/Order";
+
 {
   /* Auth Routes */
 }
@@ -47,6 +49,7 @@ function App() {
         <Route path="/user/profile" element={<ProfilePage />} />
         <Route path="/user/booking" element={<LaundriesPage  />} />
         <Route path="/booking/:laundryId" element={<BookingFormPage />} />
+        <Route path="/user/orders" element={<Order />} /> {/* إضافة مسار الطلبات */}
 
         {/* Auth Routes */}
         <Route path="/auth/user/register" element={<UserRegister />} />
