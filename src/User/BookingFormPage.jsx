@@ -11,6 +11,7 @@ const BookingFormPage = () => {
   const [selectedSlot, setSelectedSlot] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [serviceType, setServiceType] = useState("");
+  const [services, setServices] = useState([]); // لتخزين الخدمات المتاحة للمغسلة
   const [status, setStatus] = useState("pending");
   const [totalAmount, setTotalAmount] = useState(0);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -49,8 +50,45 @@ const BookingFormPage = () => {
         }
       };
       fetchAvailableSlots();
+
+      // جلب الخدمات الخاصة بالمغسلة
+      const fetchServices = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("services")
+            .select("*")
+            .eq("laundry_id", laundry.id); // جلب الخدمات المرتبطة بالمغسلة
+          if (error) throw error;
+          setServices(data);
+        } catch (error) {
+          setMessage({ type: "error", text: "حدث خطأ أثناء تحميل الخدمات." });
+        }
+      };
+      fetchServices();
     }
   }, [laundry]);
+
+  // التحقق من وجود حجز آخر في نفس التاريخ
+  const checkExistingBooking = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("laundry_id", laundry.id)
+        .eq("booking_date", bookingDate)  // التحقق من التاريخ
+        .eq("user_id", user.id); // التحقق من الحجز لنفس المستخدم
+      if (error) throw error;
+
+      if (data.length > 0) {
+        setMessage({ type: "error", text: "لا يمكنك حجز موعد في نفس اليوم لهذه المغسلة." });
+        return true; // إذا كان هناك حجز سابق
+      }
+      return false; // إذا لم يكن هناك حجز سابق
+    } catch (error) {
+      setMessage({ type: "error", text: "حدث خطأ أثناء التحقق من الحجوزات السابقة." });
+      return false;
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -61,6 +99,10 @@ const BookingFormPage = () => {
       return;
     }
 
+    // التحقق من وجود حجز مسبق في نفس التاريخ
+    const isExistingBooking = await checkExistingBooking();
+    if (isExistingBooking) return; // إذا كان هناك حجز سابق، لا يتم الحجز
+
     const bookingData = {
       user_id: user.id,
       laundry_id: laundry.id,
@@ -69,11 +111,14 @@ const BookingFormPage = () => {
       available_slot: selectedSlot,
       status,
       total_amount: totalAmount,
+      customer_name: user.name, // إضافة اسم العميل مباشرة
+      laundry_name: laundry.name, // إضافة اسم المغسلة مباشرة
     };
 
     try {
       const { error } = await supabase.from("bookings").insert([bookingData]);
       if (error) throw error;
+
       setMessage({
         type: "success",
         text: "تم الحجز بنجاح! يمكنك مراجعة سجل الحجوزات.",
@@ -133,16 +178,24 @@ const BookingFormPage = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">نوع الخدمة:</label>
+          <label className="block text-gray-700 mb-2">اختار الخدمة:</label>
           <select
             onChange={(e) => setServiceType(e.target.value)}
             value={serviceType}
             className="w-full p-2 border border-gray-300 rounded-md"
           >
             <option value="">اختر نوع الخدمة</option>
-            <option value="غسيل">غسيل</option>
-            <option value="تنظيف">تنظيف</option>
-            <option value="تنظيف وتجفيف">تنظيف وتجفيف</option>
+            {services.length > 0 ? (
+              services.map((service) => (
+                <option key={service.id} value={service.name}>
+                  {service.name} - {service.price} ريال
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>
+                لا توجد خدمات متاحة
+              </option>
+            )}
           </select>
         </div>
 
