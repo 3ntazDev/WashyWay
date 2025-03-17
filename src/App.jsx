@@ -8,7 +8,6 @@ import HeaderBasedRole from "./Components/HeaderBasedRole";
   /* User Routes */
 }
 import LaundriesPage  from "./User/LaundriesPage";
-import LoginPage from "./Auth/Login";
 import ProfilePage from "./User/ProfilePage";
 import BookingFormPage from "./User/BookingFormPage";
 import Order from "./User/Order";
@@ -29,12 +28,11 @@ import CompleteMissingProfile from "./Auth/complete-missing-profile";
   /* Laundry Routes */
 }
 import CarWashProfile from "./laundry/CarWashProfile";
-import CarWashLogin from "./laundry/CarWashLogin";
 import CarWashDashboard from "./laundry/CarWashDashboard";
-import CarWashSignUp from "./laundry/CarWashSignUp";
-import FormLaundry from "./laundry/FormLaundry";
-
-
+import CompleteRegistrationO from "./laundry/CompleteRegistrationO";
+import LoginO from "./laundry/Login";
+import OwnerRegister from "./laundry/OwnerRegister";
+import OwnerAddLaundry from "./laundry/OwnerAddLaundry";
 
 function App() {
   return (
@@ -68,11 +66,15 @@ function App() {
         {/* Admin Routes */}
 
         {/* Laundry Routes */}
-        <Route path="/laundry/login" element={<CarWashLogin />} />
-        <Route path="/laundry/dashboard" element={<CarWashDashboard />} />
+        <Route path="/owner/dashboard" element={<CarWashDashboard />} />
         <Route path="/laundry/profile" element={<CarWashProfile />} />
-        <Route path="/laundry/signup" element={<CarWashSignUp />} />  {/* إضافة مسار التسجيل */}
-        <Route path="/laundry/form" element={<FormLaundry />} /> {/* إضافة مسار النموذج */}
+        <Route path="/owner/register" element={<OwnerRegister />} />
+        <Route path="/owner/login" element={<LoginO />} />
+        <Route path="/owner/add-laundry" element={<OwnerAddLaundry />} />
+        <Route
+          path="/owner/complete-registration"
+          element={<CompleteRegistrationO />}
+        />
 
 
 
