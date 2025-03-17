@@ -1,125 +1,110 @@
-import React, { useState } from 'react'; 
-import { supabase } from '../supabaseClient'; // استيراد supabase
-import { useNavigate } from 'react-router-dom'; // لتنقل إلى صفحة أخرى بعد الإرسال
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
-function SignUp() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: ''
-  });
-
+const OwnerRegister = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // دالة لتحديث بيانات المدخلات
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  // دالة لإرسال البيانات إلى Supabase
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setError(null);
 
-    // إضافة المستخدم الجديد إلى Supabase
     const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
+      email,
+      password,
     });
 
     if (error) {
-      alert('حدث خطأ أثناء التسجيل');
-      console.error(error.message);
-    } else {
-      // إضافة بيانات المستخدم إلى الجدول users مع تعيين role إلى "Owner"
-      await supabase.from('users').insert([
+      setError("⚠️ خطأ في التسجيل: " + error.message);
+      return;
+    }
+
+    if (data?.user) {
+      const { error: dbError } = await supabase.from("users").insert([
         {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          role: 'Owner',  // تعيين الدور إلى "Owner" بشكل افتراضي
-        }
+          id: data.user.id,
+          email,
+          name,
+          phone,
+          role: "owner",
+          created_at: new Date().toISOString(),
+        },
       ]);
 
-      // بعد التسجيل، التنقل إلى صفحة FormLaundry لإدخال بيانات المغسلة
-      navigate('/laundry/form');
+      if (dbError) {
+        setError("⚠️ خطأ في إدخال البيانات: " + dbError.message);
+        return;
+      }
+
+      navigate("/Owner/Dashboard");
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-700 mb-6">تسجيل حساب جديد</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-600">الاسم الكامل</label>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-center text-gray-900">🔹 تسجيل كصاحب مغسلة</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">اسم صاحب المغسله </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="اسم المغسلة"
               required
+              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-600">البريد الإلكتروني</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
             <input
               type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@email.com"
               required
+              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
-          <div className="mb-4">
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-600">رقم الهاتف</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-600">كلمة المرور</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">كلمة المرور</label>
             <input
               type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="********"
               required
+              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              تسجيل الحساب
-            </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">رقم الهاتف</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="05XXXXXXXX"
+              required
+              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
+          <button
+            type="submit"
+            className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            تسجيل كصاحب مغسلة
+          </button>
         </form>
       </div>
     </div>
   );
-}
+};
 
-export default SignUp;
+export default OwnerRegister;

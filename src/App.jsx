@@ -18,7 +18,6 @@ import Order from "./User/Order";
 }
 
 import UserRegister from "./Auth/UserRegister";
-import OwnerRegister from "./Auth/OwnerRegister";
 import Login from "./Auth/Login";
 import CompleteRegistration from "./Auth/CompleteRegistration";
 import CompleteMissingProfile from "./Auth/complete-missing-profile";
