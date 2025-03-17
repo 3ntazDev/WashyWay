@@ -56,7 +56,6 @@ function App() {
 
         {/* Auth Routes */}
         <Route path="/auth/user/register" element={<UserRegister />} />
-        <Route path="/auth/owner/register" element={<OwnerRegister />} />
         <Route path="/auth/login" element={<Login />} />
         <Route
           path="/auth/complete-registration"
