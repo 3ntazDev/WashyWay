@@ -59,7 +59,7 @@ const Login = () => {
       }
 
       // التوجيه إلى لوحة التحكم الخاصة بالـ "owner"
-      navigate("/owner/dashboard");
+      navigate("/laundry/dashboard");
     } catch (err) {
       console.error("Error during login:", err);
       setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول");
