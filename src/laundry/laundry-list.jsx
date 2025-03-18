@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../supabaseClient"
 
-const LaundryList = ({ laundries, onAddService }) => {
+const LaundryList = ({ laundries, onAddService, onManageBookings }) => {
   const [laundryServices, setLaundryServices] = useState({})
   const [expandedLaundry, setExpandedLaundry] = useState(null)
   const [loading, setLoading] = useState({})
@@ -60,6 +60,12 @@ const LaundryList = ({ laundries, onAddService }) => {
                 <p className="text-sm text-gray-500">{laundry.location}</p>
               </div>
               <div className="flex space-x-2 space-x-reverse">
+                <button
+                  onClick={() => onManageBookings(laundry)}
+                  className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  إدارة الحجوزات
+                </button>
                 <button
                   onClick={() => onAddService(laundry)}
                   className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
