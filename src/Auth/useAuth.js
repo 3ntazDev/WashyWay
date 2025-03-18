@@ -8,41 +8,50 @@ export const useAuth = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getUser();
-      if (data?.user) {
+      if (error) {
+        console.error("Error fetching user:", error);
+      } else if (data?.user) {
+        console.log("User fetched:", data.user);
         setUser(data.user);
         fetchUserRole(data.user.id);
       } else {
         setUser(null);
-        setRole(null);
+        setRole(null); // Clear role if no user is logged in
       }
     };
 
     const fetchUserRole = async (userId) => {
       if (!userId) return;
       
-      // ✅ التحقق من إذا كان المستخدم صاحب مغسلة أو كستمر
-      const { data: ownerData } = await supabase
-        .from("carWashOwners")
-        .select("id")
+      const { data: userData, error } = await supabase
+        .from("users") // Assuming users table holds user roles
+        .select("role")
         .eq("id", userId)
         .single();
 
-      if (ownerData) {
-        setRole("carWashOwner");
+      if (error) {
+        console.error("Error fetching role:", error);
       } else {
-        setRole("customer");
+        if (userData?.role === "owner") {
+          console.log("User is owner");
+          setRole("owner");
+        } else {
+          console.log("User is regular user");
+          setRole("user");
+        }
       }
     };
 
     fetchUser();
 
-    // ✅ تحديث الحالة عند تغيير حالة المصادقة
+    // Listen for authentication state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+      console.log("Auth state changed", session);
       setUser(session?.user || null);
       if (session?.user) {
         fetchUserRole(session.user.id);
       } else {
-        setRole(null);
+        setRole(null); // Clear role on logout
       }
     });
 

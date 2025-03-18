@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../Auth/AuthContext";
+import { useAuth } from "../Auth/AuthContext"; // التأكد من استيراد useAuth بشكل صحيح
 
 const ProtectedRoute = ({ element, requiredRole }) => {
-  const { user, role, hasPermission } = useAuth();
-
-  // تحقق من حالة الدور
-  console.log("User role:", role);  // سجل الدور للتحقق
+  const { user, hasPermission } = useAuth();
 
   if (!user) {
     // إذا لم يكن المستخدم مسجلاً دخوله، أعد توجيهه إلى صفحة تسجيل الدخول
