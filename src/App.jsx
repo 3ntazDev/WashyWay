@@ -1,6 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./Auth/AuthContext"; // استيراد AuthContext
-
 import Home from "./Home";
 import About from "./About";
 import Services from "./Services";
@@ -30,7 +28,7 @@ import ProtectedRoute from "./Auth/ProtectedRoute";
 
 function App() {
   return (
-    <AuthProvider> {/* تضمين AuthProvider هنا لتوفير الجلسة لكافة الصفحات */}
+    <>
       <HeaderBasedRole />
 
       <Routes>
@@ -63,7 +61,7 @@ function App() {
             element={<Order />}
             requiredRole="user" // فقط الـ user يمكنه الوصول
           />
-        } /> {/* إضافة مسار الطلبات */}
+        } />
 
         {/* Auth Routes */}
         <Route path="/auth/user/register" element={<UserRegister />} />
@@ -95,8 +93,9 @@ function App() {
           }
         />
       </Routes>
-    </AuthProvider>
+    </>
   );
 }
 
 export default App;
+
