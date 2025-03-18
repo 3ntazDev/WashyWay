@@ -1,31 +1,22 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";  // تأكد من إعداد Supabase بشكل صحيح
+import { supabase } from "../supabaseClient";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, CheckCircle, AlertCircle, ChevronRight } from "lucide-react";
 
-function BookingFormPage() {
-  const { laundryId } = useParams();  // جلب ID المغسلة من الرابط
-  const [laundry, setLaundry] = useState(null);  // بيانات المغسلة
-  const [services, setServices] = useState([]);  // خدمات المغسلة
-  const [selectedService, setSelectedService] = useState(null);  // الخدمة المختارة
-  const [selectedTime, setSelectedTime] = useState("");  // الوقت المختار
-  const [bookingDate, setBookingDate] = useState("");  // تاريخ الحجز
-  const [loading, setLoading] = useState(false);  // حالة التحميل
-  const [submitting, setSubmitting] = useState(false);  // حالة الإرسال
-  const [error, setError] = useState(null);  // حالة الخطأ
-  const [bookingSuccess, setBookingSuccess] = useState(false);  // حالة النجاح
-  const [bookingId, setBookingId] = useState(null);  // ID الحجز
-  const [userName, setUserName] = useState(""); // اسم المستخدم (بدون useAuth)
-  const navigate = useNavigate();  // التوجيه
+function BookingForm() {
+  const { laundryId } = useParams(); // الحصول على ID المغسلة من URL
+  const [laundry, setLaundry] = useState(null);
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  // جلب المواعيد المتاحة من المغسلة
-  const timeSlots = laundry?.available_slots || [];
-
+  // جلب بيانات المغسلة والخدمات المتاحة
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchLaundryDetails = async () => {
       try {
-        // جلب بيانات المغسلة
         const { data: laundryData, error: laundryError } = await supabase
           .from("laundries")
           .select("*")
@@ -33,234 +24,148 @@ function BookingFormPage() {
           .single();
 
         if (laundryError) throw laundryError;
+
         setLaundry(laundryData);
 
-        // جلب الخدمات المتاحة لهذه المغسلة
         const { data: servicesData, error: servicesError } = await supabase
           .from("services")
           .select("*")
           .eq("laundry_id", laundryId);
 
         if (servicesError) throw servicesError;
-        setServices(servicesData || []);
+
+        setServices(servicesData);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("حدث خطأ في تحميل البيانات. يرجى المحاولة مرة أخرى.");
-      } finally {
-        setLoading(false);
+        console.error("Error fetching laundry or services:", error);
+        setError("حدث خطأ أثناء جلب بيانات المغسلة أو الخدمات");
       }
     };
 
-    fetchData();
+    fetchLaundryDetails();
   }, [laundryId]);
 
-  const handleBookingSubmit = async () => {
-    // التحقق من الحقول
-    if (!userName) {
-      alert("يرجى إدخال اسم المستخدم");
-      return;
+  // تحديد المواعيد المتاحة بناءً على التاريخ
+  useEffect(() => {
+    if (laundry && bookingDate) {
+      const slots = laundry.available_slots || [];
+      setAvailableSlots(slots);
     }
+  }, [laundry, bookingDate]);
 
-    if (!laundry) {
-      setError("لم يتم العثور على بيانات المغسلة");
-      return;
-    }
-
-    if (!selectedService) {
-      alert("يرجى اختيار نوع الخدمة");
-      return;
-    }
-
-    if (!bookingDate) {
-      alert("يرجى اختيار تاريخ الحجز");
-      return;
-    }
-
-    if (!selectedTime) {
-      alert("يرجى اختيار وقت الحجز");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      // تنسيق التاريخ والوقت للحجز
-      const formattedDateTime = `${bookingDate}T${selectedTime}:00`;
-
-      // إدخال الحجز في قاعدة البيانات
-      const { data, error } = await supabase
-        .from("bookings")
-        .insert([
-          {
-            user_name: userName,  // استخدام اسم المستخدم الذي تم إدخاله
-            laundry_id: laundry.id,
-            service_type: selectedService.name,
-            booking_date: formattedDateTime,
-            status: "pending",
-            total_amount: selectedService.price,
-            available_slot: selectedTime,
-            laundry_name: laundry.name,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-
-      // تعيين ID الحجز عند النجاح
-      if (data && data.length > 0) {
-        setBookingId(data[0].id);
-      }
-
-      // إظهار حالة النجاح
-      setBookingSuccess(true);
-
-      // إعادة التوجيه إلى صفحة الحجوزات بعد 5 ثواني
-      setTimeout(() => {
-        navigate("/user/bookings");
-      }, 5000);
-    } catch (error) {
-      console.error("Error booking:", error);
-      setError("حدث خطأ في عملية الحجز. يرجى المحاولة مرة أخرى.");
-    } finally {
-      setSubmitting(false);
-    }
+  // التعامل مع التغيير في التاريخ
+  const handleDateChange = (e) => {
+    setBookingDate(e.target.value);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-          <p className="text-xl">جاري تحميل البيانات...</p>
-        </div>
-      </div>
-    );
-  }
+  // التعامل مع التغيير في الوقت المتاح
+  const handleSlotChange = (e) => {
+    setSelectedSlot(e.target.value);
+  };
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/10 backdrop-blur-sm p-8 rounded-xl text-white text-center max-w-md">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-400" />
-          <p className="text-xl mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition"
-          >
-            إعادة المحاولة
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // التعامل مع التغيير في الخدمة
+  const handleServiceChange = (e) => {
+    setSelectedService(e.target.value);
+  };
 
-  if (bookingSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white/90 p-8 rounded-xl text-center max-w-md">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="h-10 w-10 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">تم الحجز بنجاح!</h2>
-          <p className="text-gray-600 mb-4">تم تأكيد حجزك في {laundry.name}</p>
-          <p className="text-gray-500 mb-6">سيتم تحويلك إلى صفحة الحجوزات خلال 5 ثوانٍ...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // التعامل مع إرسال الحجز
+  const handleBooking = async (e) => {
+    e.preventDefault();
+  
+    if (!selectedService || !bookingDate || !selectedSlot) {
+      setError("يرجى اختيار الخدمة، التاريخ، والوقت");
+      return;
+    }
+  
+    try {
+      // الحصول على المستخدم الحالي
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+  
+      if (userError || !user) {
+        throw new Error("لم يتم العثور على المستخدم");
+      }
+  
+      // استخدام user.id بدلاً من "user-id"
+      const { data, error } = await supabase.from("bookings").insert([
+        {
+          user_id: user.id,  // استخدم user.id هنا
+          laundry_id: laundry.id,
+          service_type: selectedService,
+          booking_date: bookingDate,
+          available_slot: selectedSlot,
+        },
+      ]);
+  
+      if (error) throw error;
+  
+      // الانتقال إلى صفحة التأكيد
+      navigate("/user/orders");
+    } catch (error) {
+      console.error("Error booking service:", error);
+      setError("حدث خطأ أثناء الحجز. يرجى المحاولة مرة أخرى.");
+    }
+  };
+  
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-lg w-full bg-white/90 backdrop-blur-sm p-6 rounded-xl">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">تفاصيل الحجز</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">حجز خدمة في {laundry?.name}</h1>
+      
+      {error && <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">{error}</div>}
 
-        {/* إدخال اسم المستخدم */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold text-gray-700 mb-2">اسم المستخدم</label>
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg"
-            placeholder="أدخل اسمك"
-          />
-        </div>
-
-        {/* عرض بيانات المغسلة */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">تفاصيل المغسلة</h3>
-          <p className="text-gray-600">{laundry?.name}</p>
-          <p className="text-gray-600">{laundry?.location}</p>
-        </div>
-
-        {/* اختيار الخدمة */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold text-gray-700 mb-2">اختار الخدمة</label>
+      <form onSubmit={handleBooking} dir="rtl">
+        <div className="mb-4">
+          <label htmlFor="service" className="block text-sm font-medium text-gray-700">اختر الخدمة</label>
           <select
-            onChange={(e) => setSelectedService(JSON.parse(e.target.value))}
-            className="w-full p-3 border border-gray-200 rounded-lg"
+            id="service"
+            value={selectedService}
+            onChange={handleServiceChange}
+            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
           >
-            <option value="">اختار خدمة</option>
+            <option value="">اختر خدمة</option>
             {services.map((service) => (
-              <option key={service.id} value={JSON.stringify(service)}>
+              <option key={service.id} value={service.name}>
                 {service.name} - {service.price} ريال
               </option>
             ))}
           </select>
         </div>
 
-        {/* اختيار التاريخ */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold text-gray-700 mb-2">اختار التاريخ</label>
+        <div className="mb-4">
+          <label htmlFor="date" className="block text-sm font-medium text-gray-700">اختر التاريخ</label>
           <input
             type="date"
+            id="date"
             value={bookingDate}
-            onChange={(e) => setBookingDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]}
-            className="w-full p-3 border border-gray-200 rounded-lg"
+            onChange={handleDateChange}
+            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
           />
         </div>
 
-        {/* اختيار الوقت */}
-        <div className="mb-6">
-          <label className="block text-lg font-semibold text-gray-700 mb-2">اختار الوقت</label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-            {timeSlots.map((time) => (
-              <button
-                key={time}
-                onClick={() => setSelectedTime(time)}
-                className={`p-2 rounded-lg border-2 ${
-                  selectedTime === time
-                    ? "border-blue-600 bg-blue-50 text-blue-600"
-                    : "border-gray-200 hover:border-blue-300 text-gray-600"
-                }`}
-              >
-                {time}
-              </button>
+        <div className="mb-4">
+          <label htmlFor="slot" className="block text-sm font-medium text-gray-700">اختر الوقت المتاح</label>
+          <select
+            id="slot"
+            value={selectedSlot}
+            onChange={handleSlotChange}
+            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          >
+            <option value="">اختر الوقت</option>
+            {availableSlots.map((slot) => (
+              <option key={slot} value={slot}>{slot}</option>
             ))}
-          </div>
+          </select>
         </div>
 
-        {/* زر التأكيد */}
-        <button
-          onClick={handleBookingSubmit}
-          disabled={submitting || !selectedService || !bookingDate || !selectedTime}
-          className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white py-4 px-6 rounded-lg transition-all"
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              جاري الحجز...
-            </>
-          ) : (
-            <>
-              تأكيد الحجز
-              <ChevronRight className="h-5 w-5" />
-            </>
-          )}
-        </button>
-      </div>
+        <div className="mt-4">
+          <button
+            type="submit"
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            تأكيد الحجز
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
 
-export default BookingFormPage;
+export default BookingForm;
