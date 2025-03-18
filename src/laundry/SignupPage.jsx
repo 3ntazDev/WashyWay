@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-const UserRegister = () => {
+const OwnerRegister = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("user");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,20 +15,22 @@ const UserRegister = () => {
     setError(null);
     setLoading(true);
 
-    try {
-      if (password.length < 6) {
-        setError("⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-        setLoading(false);
-        return;
-      }
+    // التحقق من طول كلمة المرور
+    if (password.length < 6) {
+      setError("⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      setLoading(false);
+      return;
+    }
 
+    try {
+      // التسجيل باستخدام Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            role: role,
+            role: "owner", // تحديد الدور كـ "owner"
           },
         },
       });
@@ -37,17 +38,18 @@ const UserRegister = () => {
       if (error) {
         console.error("خطأ في التسجيل:", error);
         setError("⚠️ خطأ في التسجيل: " + error.message);
+        setLoading(false);
         return;
       }
 
       if (data?.user) {
-        // إدخال المستخدم في جدول users بعد التسجيل
+        // إدخال بيانات المستخدم في جدول 'users' بعد التسجيل
         const { error: insertError } = await supabase.from("users").insert([
           {
             id: data.user.id,
             email: email,
             name: fullName,
-            role: role,
+            role: "owner", // تأكيد الدور كـ "owner"
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           },
@@ -56,11 +58,12 @@ const UserRegister = () => {
         if (insertError) {
           console.error("خطأ في حفظ البيانات:", insertError);
           setError("⚠️ خطأ في حفظ البيانات: " + insertError.message);
+          setLoading(false);
           return;
         }
 
-        // التوجيه إلى صفحة إكمال التسجيل
-        navigate("/auth/complete-registration", { state: { userId: data.user.id } });
+        // بعد التسجيل، توجيه المستخدم إلى صفحة إتمام البيانات
+        navigate("/laundry/profile-completion", { state: { userId: data.user.id } });
       }
     } catch (err) {
       console.error("خطأ غير متوقع:", err);
@@ -74,7 +77,7 @@ const UserRegister = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">التسجيل</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">تسجيل حساب مشرف</h2>
         </div>
         {error && (
           <div className="bg-red-50 border-r-4 border-red-500 p-4 rounded-md">
@@ -131,22 +134,6 @@ const UserRegister = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                الدور
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="">اختر الدور</option>
-                <option value="user">مستخدم</option>
-              </select>
-            </div>
           </div>
 
           <div>
@@ -164,7 +151,7 @@ const UserRegister = () => {
               لديك حساب بالفعل؟{" "}
               <button
                 type="button"
-                onClick={() => navigate("/auth/login")}
+                onClick={() => navigate("/laundry/login")}
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 تسجيل الدخول
@@ -177,4 +164,4 @@ const UserRegister = () => {
   );
 };
 
-export default UserRegister;
+export default OwnerRegister;

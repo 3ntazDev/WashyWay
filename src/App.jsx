@@ -4,6 +4,7 @@ import About from "./About";
 import Services from "./Services";
 import Contact from "./Contact";
 import HeaderBasedRole from "./Components/HeaderBasedRole";
+
 {
   /* User Routes */
 }
@@ -27,12 +28,13 @@ import CompleteMissingProfile from "./Auth/complete-missing-profile";
 {
   /* Laundry Routes */
 }
-import CarWashProfile from "./laundry/CarWashProfile";
-import CarWashDashboard from "./laundry/CarWashDashboard";
-import CompleteRegistrationO from "./laundry/CompleteRegistrationO";
-import LoginO from "./laundry/Login";
-import OwnerRegister from "./laundry/OwnerRegister";
-import OwnerAddLaundry from "./laundry/OwnerAddLaundry";
+import LoginPage from "./laundry/LoginPage";
+import SignupPage from "./laundry/SignupPage";
+import DashboardPage from "./laundry/DashboardPage";
+import ProfileCompletionPage from "./laundry/ProfileCompletionPage";
+
+
+
 
 function App() {
   return (
@@ -66,14 +68,13 @@ function App() {
         {/* Admin Routes */}
 
         {/* Laundry Routes */}
-        <Route path="/owner/dashboard" element={<CarWashDashboard />} />
-        <Route path="/laundry/profile" element={<CarWashProfile />} />
-        <Route path="/owner/register" element={<OwnerRegister />} />
-        <Route path="/owner/login" element={<LoginO />} />
-        <Route path="/owner/add-laundry" element={<OwnerAddLaundry />} />
+        
+        <Route path="/laundry/login" element={<LoginPage />} />
+        <Route path="/laundry/signup" element={<SignupPage />} />
+        <Route path="/laundry/dashboard" element={<DashboardPage />} />
         <Route
-          path="/owner/complete-registration"
-          element={<CompleteRegistrationO />}
+          path="/laundry/profile-completion"
+          element={<ProfileCompletionPage />} 
         />
 
 

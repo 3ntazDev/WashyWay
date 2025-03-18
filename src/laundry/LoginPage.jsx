@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-const LoginO = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -15,14 +15,22 @@ const LoginO = () => {
     setLoading(true);
 
     try {
-      // محاولة تسجيل الدخول باستخدام Supabase
+      // محاولة تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      // التحقق من وجود خطأ أثناء عملية تسجيل الدخول
       if (signInError) {
-        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        // يمكن تحديد الأخطاء التي قد تحدث
+        if (signInError.message.includes("Invalid login credentials")) {
+          setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        } else if (signInError.message.includes("Network request failed")) {
+          setError("⚠️ هناك مشكلة في الاتصال بالخادم. يرجى المحاولة لاحقًا");
+        } else {
+          setError("⚠️ حدث خطأ أثناء تسجيل الدخول: " + signInError.message);
+        }
         setLoading(false);
         return;
       }
@@ -38,53 +46,19 @@ const LoginO = () => {
 
       // التحقق من أن الحساب مفعل
       if (!userData.user.email_confirmed_at) {
-        setError("⚠️ الحساب غير مفعل. يرجى التحقق من بريدك الإلكتروني.");
+        setError("⚠️ الحساب غير مفعل. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.");
         setLoading(false);
         return;
       }
 
-      // جلب بيانات الدور من جدول المستخدمين
-      const { data: userInfo, error: roleError } = await supabase
-        .from("users")
-        .select("role, name, phone")
-        .eq("id", userData.user.id)
-        .single();
-
-      if (roleError || userInfo?.role !== "owner") {
-        setError("⚠️ ليس لديك صلاحية الوصول إلى هذه الصفحة.");
+      // التحقق من الدور (فقط "owner" يمكنه الدخول)
+      if (userData.user.user_metadata?.role !== "owner") {
+        setError("⚠️ لا يمكنك الدخول لأنك لست مالك.");
         setLoading(false);
         return;
       }
 
-      // التحقق من وجود بيانات المغسلة في جدول laundries
-      const { data: laundryData, error: laundryError } = await supabase
-        .from("laundries")
-        .select("*")
-        .eq("owner_id", userData.user.id)
-        .single();
-
-      if (laundryError || !laundryData) {
-        // إذا لم يكن هناك بيانات مغسلة، توجيه المستخدم إلى صفحة إضافة المغسلة
-        setError("⚠️ لم يتم العثور على بيانات المغسلة.");
-        setLoading(false);
-        navigate("/owner/add-laundry");  // توجيه إلى صفحة إضافة المغسلة
-        return;
-      }
-
-      // التحقق من وجود خدمات في جدول services
-      const { data: servicesData, error: servicesError } = await supabase
-        .from("services")
-        .select("*")
-        .eq("laundry_id", laundryData.id);
-
-      if (servicesError || servicesData.length === 0) {
-        setError("⚠️ لم يتم العثور على خدمات للمغسلة.");
-        setLoading(false);
-        navigate("/owner/add-laundry");  // توجيه إلى صفحة إضافة المغسلة لإضافة الخدمات
-        return;
-      }
-
-      // إذا كانت جميع البيانات مكتملة، التوجيه إلى لوحة التحكم
+      // التوجيه إلى لوحة التحكم الخاصة بالـ "owner"
       navigate("/owner/dashboard");
     } catch (err) {
       console.error("Error during login:", err);
@@ -157,7 +131,7 @@ const LoginO = () => {
               ليس لديك حساب؟{" "}
               <button
                 type="button"
-                onClick={() => navigate("/auth/owner/register")}
+                onClick={() => navigate("/laundry/signup")}
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 سجل هنا
@@ -170,4 +144,4 @@ const LoginO = () => {
   );
 };
 
-export default LoginO;
+export default Login;
