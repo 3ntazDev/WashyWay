@@ -1,55 +1,77 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+"use client"
+
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../supabaseClient"
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
 
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
-      });
+      })
 
       if (signInError) {
-        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة");
-        setLoading(false);
-        return;
+        setError("⚠️ البريد الإلكتروني أو كلمة المرور غير صحيحة")
+        setLoading(false)
+        return
       }
 
       // جلب بيانات المستخدم من Supabase auth
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      const { data: userData, error: userError } = await supabase.auth.getUser()
 
       if (userError || !userData?.user) {
-        setError("⚠️ حدث خطأ أثناء جلب بيانات المستخدم.");
-        setLoading(false);
-        return;
+        setError("⚠️ حدث خطأ أثناء جلب بيانات المستخدم.")
+        setLoading(false)
+        return
       }
 
       // التحقق من أن الحساب مفعل
       if (!userData.user.email_confirmed_at) {
-        setError("⚠️ الحساب غير مفعل. يرجى التحقق من بريدك الإلكتروني.");
-        setLoading(false);
-        return;
+        setError("⚠️ الحساب غير مفعل. يرجى التحقق من بريدك الإلكتروني.")
+        setLoading(false)
+        return
       }
 
-      navigate("/user/booking");
+      // التحقق من دور المستخدم في جدول المستخدمين
+      const { data: userProfile, error: profileError } = await supabase
+        .from("users")
+        .select("role")
+        .eq("email", userData.user.email)
+        .single()
+
+      if (profileError) {
+        setError("⚠️ حدث خطأ أثناء التحقق من صلاحيات المستخدم.")
+        setLoading(false)
+        return
+      }
+
+      // التحقق من أن المستخدم لديه دور "owner"
+      if (userProfile && userProfile.role !== "user") {
+        setError("⚠️ لا يوجد لديك صلاحية. حسابك حساب صاحب مغسلة.")
+        setLoading(false)
+        return
+      }
+
+      navigate("/user/booking")
     } catch (err) {
-      console.error("Error during login:", err);
-      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول");
+      console.error("Error during login:", err)
+      setError("⚠️ حدث خطأ غير متوقع أثناء تسجيل الدخول")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
@@ -126,7 +148,8 @@ const Login = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
+
