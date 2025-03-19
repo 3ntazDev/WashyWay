@@ -10,6 +10,7 @@ import LaundriesPage from "./User/LaundriesPage";
 import ProfilePage from "./User/ProfilePage";
 import BookingFormPage from "./User/BookingFormPage";
 import Order from "./User/Order";
+import UserSummary from "./User/UserSummary";
 
 // Auth Routes
 import UserRegister from "./Auth/UserRegister";
@@ -41,6 +42,12 @@ function App() {
         <Route path="/user/profile" element={
           <ProtectedRoute
             element={<ProfilePage />}
+            requiredRole="user" // فقط الـ user يمكنه الوصول
+          />
+        } />
+        <Route path="/user/summary" element={
+          <ProtectedRoute
+            element={<UserSummary />}
             requiredRole="user" // فقط الـ user يمكنه الوصول
           />
         } />

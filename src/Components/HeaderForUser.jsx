@@ -22,9 +22,8 @@ const HeaderForUser = () => {
           <Link to="/user/orders" className="text-gray-700 hover:text-gray-900">
             Bookings
           </Link>
-          <Link to="/carwash-selection" className="text-gray-700 hover:text-gray-900">
-            Car Wash Selection
-          </Link>
+          <Link to="/user/summary" className="text-gray-700 hover:text-gray-900">
+Dashborad          </Link>
         </nav>
 
         {/* Profile icon */}
