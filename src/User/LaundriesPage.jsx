@@ -24,6 +24,8 @@ export default function LaundriesPage() {
           data: { session },
         } = await supabase.auth.getSession()
 
+
+        
         if (session) {
           // Fetch user name from name_roles table
           const { data: userData, error: userError } = await supabase
